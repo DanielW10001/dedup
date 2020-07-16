@@ -41,10 +41,13 @@ for root, subdirs, filenames in os.walk(args.target):
         count = 2
         while True:
             try:
-                targetpath = os.path.join(base, re.sub(r'\s*\((?:已编辑|\d+)\)| - 副本', '', name))
+                targetpath = os.path.join(base, re.sub(r'\s*(?:（已编辑）|\(\d+\)|- 副本)', '', name))
+                if targetpath == path:
+                    break
                 os.rename(path, targetpath)
             except OSError:
-                name = re.sub(r'(?:_\d+)?(?P<suffix>\.[^.]+)$', f'_{count}'+r'\g<suffix>', name)
+                name = re.sub(r'(?:_No\d+)?(?P<suffix>\.[^.]+)$', f'_No{count}'+r'\g<suffix>', name)
+                count += 1
             else:
                 print(f"INFO: Rename {path} to {targetpath}")
                 break
