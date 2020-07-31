@@ -36,18 +36,21 @@ for root, subdirs, filenames in os.walk(args.target):
                 os.remove(filepath)
             else:
                 hashtopath[sha512] = filepath
-    for path in set(hashtopath.values()):
+    for hash_str, path in set(hashtopath.items()):
         base, name = os.path.split(path)
         count = 2
         while True:
             try:
-                targetpath = os.path.join(base, re.sub(r'\s*(?:（已编辑）|\(\d+\)|- 副本)', '', name))
-                if targetpath == path:
+                targetname = re.sub(r'^IMG_', '', name)
+                targetname = re.sub(r'\s*(?:（已编辑）|\(\d+\)|- 副本)', '', targetname)
+                if targetname == name:
                     break
+                targetpath = os.path.join(base, targetname)
                 os.rename(path, targetpath)
             except OSError:
                 name = re.sub(r'(?:_No\d+)?(?P<suffix>\.[^.]+)$', f'_No{count}'+r'\g<suffix>', name)
                 count += 1
             else:
+                hashtopath[hash_str] = targetpath
                 print(f"INFO: Rename {path} to {targetpath}")
                 break
